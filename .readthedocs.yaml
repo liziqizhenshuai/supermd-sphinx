@@ -1,29 +1,26 @@
+# /supermd-sphinx/.readthedocs.yaml（外层壳目录）
 version: 2
 
-# 1. 基础环境配置：安装PDF必需的LaTeX环境
+# 1. 基础环境：安装 PDF 必需的 LaTeX + SVG 转换工具
 build:
   os: ubuntu-22.04
   tools:
     python: "3.12"
   apt_packages:
-    - texlive-full
-    - librsvg2-bin
+    - texlive-full       # PDF 编译必需的 LaTeX 完整环境
+    - librsvg2-bin       # 可选：SVG 转 PNG 工具（如需显示图片）
 
-# 2. 规范python.install配置（指向sphinx_template下的requirements.txt）
+# 2. 依赖安装：指向内部项目的 requirements.txt
 python:
   install:
-    - requirements: sphinx_template/requirements.txt  # 适配实际路径
+    - requirements: sphinx_template/requirements.txt  # 精准指向内部依赖文件
 
-# 3. Sphinx配置（合法字段）
+# 3. Sphinx 核心配置：指向内部项目的 conf.py
 sphinx:
-  configuration: sphinx_template/source/conf.py
-  builder: html
-  fail_on_warning: false
+  configuration: sphinx_template/source/conf.py  # 内部项目的核心配置
+  builder: html  # RTD 仅允许 HTML 类 builder，不影响 PDF 生成
+  fail_on_warning: false  # 忽略字体/符号警告，优先生成 PDF
 
-# 4. 仅输出PDF格式
+# 4. 仅输出 PDF 格式（RTD 会自动基于内部 conf.py 编译 PDF）
 formats:
   - pdf
-
-# 5. 编译命令
-commands:
-  - cd sphinx_template && make clean && sphinx-build -b latex source build/latex && cd build/latex && make
