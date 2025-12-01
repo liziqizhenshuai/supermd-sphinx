@@ -1,21 +1,25 @@
+# /supermd-sphinx/.readthedocs.yaml（扁平结构根目录）
 version: 2
 
+# 1. 基础环境：仅安装必需依赖
 build:
   os: ubuntu-22.04
   tools:
     python: "3.12"
   apt_packages:
-    - texlive-full       # PDF 编译必需
+    - texlive-full  # PDF编译核心依赖
 
+# 2. 依赖安装：仅合法的requirements字段
 python:
   install:
     - requirements: requirements.txt  # 根目录依赖文件
 
+# 3. Sphinx配置：仅保留3个合法字段
 sphinx:
-  configuration: source/conf.py        # 根目录下的 conf.py
-  builder: html
-  fail_on_warning: false
-  language: zh_CN                      # 匹配中文配置
+  configuration: source/conf.py       # 根目录下的conf.py
+  builder: html                       # RTD强制允许的值
+  fail_on_warning: false              # 忽略非致命警告
 
+# 4. 仅输出PDF格式
 formats:
-  - pdf  # 仅生成 PDF
+  - pdf
