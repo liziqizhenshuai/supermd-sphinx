@@ -1,0 +1,23 @@
+# /workspaces/supermd-sphinx/.readthedocs.yaml（仓库根目录！）
+version: 2
+
+# 1. 切换到Sphinx模板所在的子目录（关键）
+build:
+  working_dir: sphinx_template  # RTD会先进入这个目录执行编译
+  os: ubuntu-22.04
+  tools:
+    python: "3.12"  # 匹配你本地的Python版本
+
+# 2. 安装编译依赖（仅装核心包，避免多余报错）
+python:
+  install:
+    - packages:
+        - sphinx
+        - sphinx-rtd-theme
+        - myst-parser  # MD文件解析核心
+
+# 3. 精准指定Sphinx配置文件路径
+sphinx:
+  configuration: sphinx_template/source/conf.py  # conf.py在sphinx_template/source下
+  builder: html  # 只生成HTML文档（先避开PDF的LaTeX坑）
+  fail_on_warning: false  # 忽略警告，优先编译成功
