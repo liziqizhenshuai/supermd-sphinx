@@ -6,6 +6,8 @@
 # -- Project information -----------------------------------------------------
 import sys
 import datetime
+import os
+import pathlib
 
 project = "project"
 today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -37,7 +39,12 @@ bibtex_bibfiles = ["refs.bib"]
 # -- 基础文档配置 -------------------------------------------------------------
 master_doc = "index"
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]  # 新增：排除编译目录
+exclude_patterns = [
+    "_build", 
+    "Thumbs.db", 
+    ".DS_Store",
+    "**/*.svg"  # 新增：全局排除所有SVG文件
+]  # 新增：排除编译目录
 math_number_all = False
 math_eqref_format = "Eq.{number}"
 math_numfig = True
@@ -67,24 +74,35 @@ html_static_path = ["_static"]
 def setup(app):
     app.add_css_file("custom.css")
 
-# -- LATEX配置（修复中文PDF + 保留模板原有风格）--------------------------------
+# -- LATEX配置（修复中文PDF + 强制屏蔽SVG + 保留模板原有风格）------------------
 latex_engine = "xelatex"  # 新增：中文PDF必需的编译器
 latex_elements = {
     # 纸张/字体大小（模板原有，替换为a4更通用）
     "papersize": "a4paper",  # 替换letterpaper为A4（适配国内打印）
     "pointsize": "10pt",
-    # 预编译配置（修复中文 + 保留模板原有格式）
+    # 预编译配置（修复中文 + 强制屏蔽SVG + 保留模板原有格式）
     "preamble": r"""
     \addto\captionsenglish{\renewcommand{\chaptername}{}}
     \usepackage[UTF8, scheme = plain]{ctex}
-    \usepackage{fontspec}  # 新增：指定云端中文字体
+    \usepackage{fontspec}  % 新增：指定云端中文字体（# → %）
     \usepackage{float}
     \usepackage{indentfirst}
-    \usepackage{ragged2e}  # 新增：解决Underfull \hbox排版警告
+    \usepackage{ragged2e}  % 新增：解决Underfull \hbox排版警告（# → %）
+    \usepackage{graphicx}  % 新增：支持图片尺寸识别
     \setlength{\parindent}{2em}
-    \setmainfont{WenQuanYi Micro Hei}  # 新增：适配云端字体
-    \setCJKmainfont{WenQuanYi Micro Hei}  # 新增：中文渲染
-    \RaggedRight  # 新增：自动换行，消除排版警告
+    \setmainfont{WenQuanYi Micro Hei}  % 新增：适配云端字体（# → %）
+    \setCJKmainfont{WenQuanYi Micro Hei}  % 新增：中文渲染（# → %）
+    \RaggedRight  % 新增：自动换行（# → %）
+    \graphicspath{{/workspaces/supermd-sphinx/sphinx_template/source/}}  % 新增：指定图片根路径
+    \DeclareGraphicsExtensions{.png,.jpg,.jpeg}  % 新增：优先识别PNG/JPG
+    % 核心修复：强制忽略所有SVG图片，仅加载PNG/JPG/JPEG
+    \renewcommand{\includegraphics}[2][]{%
+      \IfFileExists{#2.png}{\includegraphics[#1]{#2.png}}{%
+        \IfFileExists{#2.jpg}{\includegraphics[#1]{#2.jpg}}{%
+          \IfFileExists{#2.jpeg}{\includegraphics[#1]{#2.jpeg}}{}%
+        }%
+      }%
+    }
     """,
     "figure_align": "H",  # 模板原有：让图片不乱跑
     # 新增：禁用超链接解析错误（避免xdvipdfmx致命错误）
@@ -92,7 +110,7 @@ latex_elements = {
     "passoptionstopackages": r'\PassOptionsToPackage{unicode}{hyperref}',
 }
 
-# 忽略SVG图片（新增：解决LaTeX无法解析SVG的错误）
+# 双重保障：1. Sphinx层面忽略SVG 2. LaTeX层面强制跳过SVG
 latex_ignore_images = ['.svg', '.svgz']
 
 # PDF文档结构（保留模板原有）
