@@ -1,32 +1,33 @@
 # /workspaces/supermd-sphinx/.readthedocs.yaml（仓库根目录）
 version: 2
 
-# 1. 切换到模板目录，匹配原有环境（不修改模板路径）
+# 1. 切换到模板目录，匹配原有环境
 build:
-  working_dir: sphinx_template  # 模板所在目录，与你项目一致
-  os: ubuntu-22.04              # 系统版本（兼容模板依赖）
+  working_dir: sphinx_template
+  os: ubuntu-22.04
   tools:
-    python: "3.12"              # 匹配你本地的Python版本
+    python: "3.12"
 
-# 2. 安装模板所有依赖（保留模板原有扩展，不删减）
+# 2. 修复python.install配置格式（关键！解决Missing key报错）
 python:
   install:
-    # 优先安装模板自带的requirements.txt（保留所有依赖）
+    # 方式1：若模板有requirements.txt，优先用这个（推荐）
     - requirements: sphinx_template/requirements.txt
-    # 补充适配linkify的依赖（模板conf.py中启用了linkify）
-    - packages:
+    # 方式2：若无requirements.txt，用path指定空路径 + 安装packages（兼容RTD规范）
+    - path: .
+      packages:
         - linkify-it-py
 
 # 3. 核心配置：仅生成EPUB，禁用HTML/PDF编译
 sphinx:
-  configuration: sphinx_template/source/conf.py  # 模板原有conf.py路径
-  builder: epub  # 强制仅构建EPUB电子书，忽略HTML/PDF
-  fail_on_warning: false  # 忽略模板原有警告（避免编译中断）
+  configuration: sphinx_template/source/conf.py
+  builder: epub
+  fail_on_warning: false
 
-# 4. 仅输出EPUB格式，删除所有其他格式
+# 4. 仅输出EPUB格式
 formats:
   - epub
 
-# 5. 强制指定编译命令（跳过模板Makefile中的PDF/HTML逻辑）
+# 5. 强制指定编译命令（跳过PDF/HTML）
 commands:
-  - sphinx-build -b epub $SPHINX_SOURCE $SPHINX_BUILD  # 仅执行EPUB构建
+  - sphinx-build -b epub $SPHINX_SOURCE $SPHINX_BUILD
