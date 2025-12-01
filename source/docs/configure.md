@@ -54,7 +54,7 @@ output:
       - name: my_dump
         region: [ 25.0, 25.0, 25.0, 80.4, 80.4, 80.4 ]
         mode: "copy"
-        file_path: "misa_mdl.{}.out"
+        file_path: "supermd_mdl.{}.out"
         by_frame: true
       - name: collision_dump
         mode: "copy"
@@ -98,10 +98,10 @@ stages:
 你可以在运行 superMD 程序时，通过命令行参数指定配置文件路径，程序能够读取配置文件，以进行后续模拟，例如：
 
 ```bash
-mpirun -n 4 /path/of/misamd  -c /path/of/config.yaml
+mpirun -n 4 /path/of/supermd  -c /path/of/config.yaml
 ```
 或者：
 
 ```bash
-mpirun -n 4 /path/of/misamd  --conf=/path/of/config.yaml
+mpirun -n 4 /path/of/supermd  --conf=/path/of/config.yaml
 ```
