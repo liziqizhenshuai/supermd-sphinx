@@ -1,33 +1,33 @@
 # /workspaces/supermd-sphinx/.readthedocs.yaml（仓库根目录）
 version: 2
 
-# 1. 切换到模板目录，匹配原有环境
+# 1. 切换到模板目录，匹配环境
 build:
   working_dir: sphinx_template
   os: ubuntu-22.04
   tools:
     python: "3.12"
 
-# 2. 修复python.install配置格式（关键！解决Missing key报错）
+# 2. 规范python.install配置（解决之前的Missing key报错）
 python:
   install:
-    # 方式1：若模板有requirements.txt，优先用这个（推荐）
-    - requirements: sphinx_template/requirements.txt
-    # 方式2：若无requirements.txt，用path指定空路径 + 安装packages（兼容RTD规范）
+    - requirements: sphinx_template/requirements.txt  # 有则保留，无则删除
     - path: .
       packages:
         - linkify-it-py
 
-# 3. 核心配置：仅生成EPUB，禁用HTML/PDF编译
+# 3. 关键：sphinx.builder用RTD允许的值（如html），但后续命令覆盖
 sphinx:
   configuration: sphinx_template/source/conf.py
-  builder: epub
+  builder: html  # 必须写RTD允许的值（html/htmldir等）
   fail_on_warning: false
 
-# 4. 仅输出EPUB格式
+# 4. 仅输出EPUB格式，删除PDF/HTML
 formats:
   - epub
 
-# 5. 强制指定编译命令（跳过PDF/HTML）
+# 5. 核心：强制执行EPUB构建命令，忽略builder配置
 commands:
-  - sphinx-build -b epub $SPHINX_SOURCE $SPHINX_BUILD
+  # 先清空build目录，再强制生成EPUB
+  - rm -rf $SPHINX_BUILD/*
+  - sphinx-build -b epub $SPHINX_SOURCE $SPHINX_BUILD/epub
